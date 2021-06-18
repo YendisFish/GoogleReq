@@ -1,6 +1,11 @@
 {
-    "lang" : "en",
-    "pyscript-path" : "",
-    "pyscript-config-path" : "",
-    "python-executable-path" : ""
+    "langsettings" : {
+        "lang" : "en",
+        "pyscript-path" : "",
+        "pyscript-config-path" : "",
+        "python-executable-path" : ""
+    },
+    "filesettings" : {
+        "save-dir-name" : "Saves"
+    }
 }
