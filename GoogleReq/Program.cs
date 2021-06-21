@@ -9,6 +9,38 @@ namespace GoogleReq
 {
     class Program
     {
+        public static void searchFile(String fileName)
+        {
+            if (Directory.Exists($@"Saves"))
+            {
+                String[] saveFiles = Directory.GetFiles($@"Saves");
+                String saveFilesString = saveFiles.ToString();
+
+                if (saveFilesString.Contains(fileName))
+                {
+                    Console.WriteLine("File Found");
+                    Console.Write("Would you like to read the file? [y/n] > ");
+                    String yorn = Console.ReadLine();
+
+                    if (yorn == "y" || yorn == "n" || yorn == "Y" || yorn == "N")
+                    {
+                        if (yorn == "y" || yorn == "Y")
+                        {
+                            String fileText = File.ReadAllText(fileName);
+                            Console.WriteLine(fileName);
+                        }
+                        if (yorn == "n" || yorn == "N")
+                        {
+                            Console.WriteLine("Aborting!");
+                        }
+                    }
+                }
+            } else
+            {
+                Console.WriteLine("There are no files to search for!");
+            }
+        }
+        
         public static void saveToFile(String query, String pyscriptOutput)
         {
             JObject reader = JObject.Parse(File.ReadAllText("config.json"));
@@ -46,7 +78,6 @@ namespace GoogleReq
 
                 String a = asdfabds.ToString("o");
                 a = a.Replace("/", ".").Replace(":", ".");
-
 
                 var filestream = File.Create($@"{saveName}\{query}.{a}.txt");
                 filestream.Close();
@@ -100,55 +131,81 @@ namespace GoogleReq
         }
         static void Main(string[] args)
         {
-            pythonScriptHandler();
-            
-            Console.WriteLine("GoolgeReq!");
-            
-            String langsettings = langHandler();
-            var filestream = File.Create(@"Python\Scripts\langsettings.txt");
-            filestream.Close();
-            File.WriteAllText(@"Python\Scripts\langsettings.txt", langsettings);
+            Console.WriteLine("GoogleReq!");
 
-            Console.Write("Search > ");
-            String toFileForSearch = Console.ReadLine();
-            Console.Write("How many results would you like? > ");
-            int resultNum = Convert.ToInt32(Console.ReadLine());
-
-            var fs = File.Create(@"Python\Scripts\Query.txt");
-            fs.Close();
-            File.WriteAllText(@"Python\Scripts\Query.txt", toFileForSearch);
-            
-            String request = requestHandler(resultNum);
-
-            File.Delete(@"Python\Scripts\Query.txt");
-            File.Delete(@"Python\Scripts\langsettings.txt");
-            
-            while(true)
+            while (true)
             {
-                Console.Write("Would you like to write the output to a file? [y/n] > ");
-                String yorn = Console.ReadLine();
+                Console.Write("Enter your options [-google (-g) -searchfile (-sf) exit] > ");
 
-                if (yorn == "y" || yorn == "n")
+                String mainLine = Console.ReadLine();
+
+                if (mainLine == "-google" || mainLine == "-g" || mainLine == "-searchFile" || mainLine == "-sf" || mainLine == "exit")
                 {
-                    if (yorn == "y")
+                    if (mainLine == "-google" || mainLine == "-g")
                     {
-                        Console.WriteLine("Saving to file!");
-                        saveToFile(toFileForSearch, request);
-                        break;
+                        pythonScriptHandler();
+
+                        String langsettings = langHandler();
+                        var filestream = File.Create(@"Python\Scripts\langsettings.txt");
+                        filestream.Close();
+                        File.WriteAllText(@"Python\Scripts\langsettings.txt", langsettings);
+
+                        Console.Write("Search > ");
+                        String toFileForSearch = Console.ReadLine();
+                        Console.Write("How many results would you like? > ");
+                        int resultNum = Convert.ToInt32(Console.ReadLine());
+
+                        var fs = File.Create(@"Python\Scripts\Query.txt");
+                        fs.Close();
+                        File.WriteAllText(@"Python\Scripts\Query.txt", toFileForSearch);
+
+                        String request = requestHandler(resultNum);
+
+                        File.Delete(@"Python\Scripts\Query.txt");
+                        File.Delete(@"Python\Scripts\langsettings.txt");
+
+                        while (true)
+                        {
+                            Console.Write("Would you like to write the output to a file? [y/n] > ");
+                            String yorn = Console.ReadLine();
+
+                            if (yorn == "y" || yorn == "n")
+                            {
+                                if (yorn == "y")
+                                {
+                                    Console.WriteLine("Saving to file!");
+                                    saveToFile(toFileForSearch, request);
+                                    break;
+                                }
+                                if (yorn == "n")
+                                {
+                                    Console.WriteLine("Aborting save!");
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                Console.WriteLine("Invalid character! Please try again!");
+                                continue;
+                            }
+                        }
                     }
-                    if (yorn == "n")
+                    if (mainLine == "-searchfile" || mainLine == "-sf")
                     {
-                        Console.WriteLine("Aborting save!");
-                        break;
+                        Console.Write("Please enter the name of the file you are searching for (include the directory) > ");
+                        String userIn = Console.ReadLine();
+
+                        searchFile(userIn);
                     }
-                }
-                else
+                    if (mainLine == "exit")
+                    {
+                        System.Environment.Exit(0);
+                    }
+                } else
                 {
-                    Console.WriteLine("Invalid character! Please try again!");
-                    continue;
+                    Console.WriteLine("This argument does not exist! Please try again!");
                 }
             }
-
             Console.WriteLine("Press any key to exit!");
             Console.ReadKey();
         }
