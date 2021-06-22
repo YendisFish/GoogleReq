@@ -21,5 +21,7 @@ with open(path + "langsettings.txt", 'r') as f:
     f.close()
 print(f"SETTINGS: {Query} : {lang}")
 
+print("\n=====================")
 for Result in search(Query, lang=lang, num_results=int(numbers)):
     print(Result)
+print("=====================\n")
