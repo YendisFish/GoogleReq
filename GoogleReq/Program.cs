@@ -9,11 +9,53 @@ namespace GoogleReq
 {
     class Program
     {
+        public static String stats(bool isRunning)
+        {
+            if (isRunning == true)
+            {
+                String toReturn = File.ReadAllText("Stats.txt");
+                return $"STATS \n{toReturn}";
+
+            } else
+            {
+                return "There is nothing in the stats file!";
+            }
+        }
+
+        public static void writeStats(int numReqs, int numCycles)
+        {
+            File.WriteAllText($@"Stats.txt", $"REQUESTS = {numReqs} | CYCLES = {numCycles}");
+            File.WriteAllText($@"Stats.Init.txt", "True");
+        }
+
+        public static bool checkStats()
+        {
+            if (File.Exists("Stats.Init.txt"))
+            {
+                String checkFile = File.ReadAllText("Stats.Init.txt");
+
+                if (checkFile.Contains("True"))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            } else
+            {
+                return false;
+            }
+        }
+
         public static void searchFile(String fileName)
         {
-            if (Directory.Exists($@"Saves"))
+            JObject reader = JObject.Parse(File.ReadAllText($@"config.json"));
+            String saveFile = (string)reader["filesettings"]["save-dir-name"];
+            
+            if (Directory.Exists($@"{saveFile}"))
             {
-                String[] saveFiles = Directory.GetFiles($@"Saves");
+                String[] saveFiles = Directory.GetFiles($@"{saveFile}");
                 String saveFilesString = saveFiles.ToString();
 
                 if (saveFilesString.Contains(fileName))
@@ -131,15 +173,22 @@ namespace GoogleReq
         }
         static void Main(string[] args)
         {
+            int numReqs = 0;
+            int numCycles = 0;
+
             Console.WriteLine("GoogleReq!");
+
+            File.Create($@"Stat.Init.txt");
 
             while (true)
             {
-                Console.Write("Enter your options [-google (-g) -searchfile (-sf) exit] > ");
+                bool checkStat = checkStats();
+                
+                Console.Write("Enter your options [-google (-g) | -searchfile (-sf) | -stats | exit] > ");
 
                 String mainLine = Console.ReadLine();
 
-                if (mainLine == "-google" || mainLine == "-g" || mainLine == "-searchFile" || mainLine == "-sf" || mainLine == "exit")
+                if (mainLine == "-google" || mainLine == "-g" || mainLine == "-searchFile" || mainLine == "-sf" || mainLine == "exit" || mainLine == "-stats")
                 {
                     if (mainLine == "-google" || mainLine == "-g")
                     {
@@ -160,6 +209,7 @@ namespace GoogleReq
                         File.WriteAllText(@"Python\Scripts\Query.txt", toFileForSearch);
 
                         String request = requestHandler(resultNum);
+                        ++numReqs;
 
                         File.Delete(@"Python\Scripts\Query.txt");
                         File.Delete(@"Python\Scripts\langsettings.txt");
@@ -197,14 +247,23 @@ namespace GoogleReq
 
                         searchFile(userIn);
                     }
+                    if (mainLine == "-stats")
+                    {
+                        String statStr = stats(checkStat);
+                        Console.WriteLine(statStr);
+                    }
                     if (mainLine == "exit")
                     {
+                        File.Delete("Stats.Init.txt");
                         System.Environment.Exit(0);
                     }
                 } else
                 {
                     Console.WriteLine("This argument does not exist! Please try again!");
                 }
+
+                ++numCycles;
+                writeStats(numReqs, numCycles);
             }
             Console.WriteLine("Press any key to exit!");
             Console.ReadKey();
