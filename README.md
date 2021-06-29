@@ -7,3 +7,6 @@ You will have to go into the config.json to add the correct paths for the script
 EXAMPLE:
 
 "pyscript-path" : "C:\\Users\\user1\\Downloads\\GoogleReq\\GoogleReq\\Python\\Scripts\\GoogleReq.py" 
+
+
+Idk why I made this smh
